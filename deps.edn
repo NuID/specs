@@ -1,0 +1,8 @@
+{:paths ["src"]
+ :deps
+ {org.clojure/clojurescript {:mvn/version "1.10.439"}
+  org.clojure/spec.alpha {:mvn/version "0.2.176"}
+  org.clojure/clojure {:mvn/version "1.10.0-beta7"}}
+ :aliases
+ {:cambada
+  {:extra-deps {luchiniatwork/cambada {:mvn/version "1.0.0"}}}}}
