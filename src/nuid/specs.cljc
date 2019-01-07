@@ -23,6 +23,16 @@
 (s/def ::register-request-body
   (s/merge ::zk-proof ::zk-parameters (s/keys :req-un [::b])))
 
+(s/def ::ethereum-zero-hash
+  #(= % "0x0000000000000000000000000000000000000000000000000000000000000000"))
+
+(s/def ::ethereum-transaction-id
+  (s/and string?
+         not-empty
+         #(= (count %) 66)
+         #(= (subs % 0 2) "0x")
+         #(not (s/valid? ::ethereum-zero-hash %))))
+
 (s/def ::transaction-id
   (s/and string?
          not-empty
