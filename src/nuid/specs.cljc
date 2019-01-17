@@ -33,6 +33,9 @@
          #(= (subs % 0 2) "0x")
          #(not (s/valid? ::ethereum-zero-hash %))))
 
+(s/def ::sqs-submission-success-response
+  (s/keys :req-un [::MessageId ::MD5OfMessageBody]))
+
 (s/def ::transaction-id
   (s/and string?
          not-empty
