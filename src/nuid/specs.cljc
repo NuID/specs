@@ -2,54 +2,45 @@
   (:require
    [clojure.spec.alpha :as s]))
 
-(s/def ::protocol #{:schnorrsnizk})
-(s/def ::curve #{:ed25519 :secp256k1})
+(s/def ::protocol #{{:id :knizk}})
+(s/def ::curve #{{:id :secp256k1}})
+(s/def ::normalization-form #{"NFC" "NFKC" "NFD" "NFKD"})
+(defmulti keyfn :id)
+(defmethod keyfn :sha256 [_] (s/keys :req-un [::salt ::normalization-form]))
+(defmethod keyfn :sha512 [_] (s/keys :req-un [::salt ::normalization-form]))
+(defmethod keyfn :scrypt [_] (s/keys :req-un [::salt ::n ::r ::p ::normalization-form ::key-length]))
+(s/def ::keyfn (s/multi-spec keyfn :id))
+(defmulti hashfn :id)
+(defmethod hashfn :sha256 [_] (s/keys :req-un [::normalization-form]))
+(defmethod hashfn :sha512 [_] (s/keys :req-un [::normalization-form]))
+(s/def ::hashfn (s/multi-spec hashfn :id))
+(s/def ::credential-specification (s/keys :req-un [::protocol ::curve ::keyfn ::hashfn]))
+(s/def ::credential (s/merge ::credential-specification (s/keys :req-un [::pub])))
+(defmulti proof* :protocol)
+(defmethod proof* {:id :knizk} [_] (s/keys :req-un [::nonce ::c ::s]))
+(s/def ::proof* (s/multi-spec proof* :protocol))
+(s/def ::proof (s/merge ::credential ::proof*))
 
-(s/def ::versioned
-  (s/keys :req-un [::protocol ::curve ::keyfn ::hashfn]))
-
-(s/def ::zk-parameters-schnorrsnizk
-  (s/merge ::versioned (s/keys :req-un [::r1 ::r2 ::c] :opt-un [::pub])))
-(defmulti zk-parameters :protocol)
-(defmethod zk-parameters :schnorrsnizk [_] ::zk-parameters-schnorrsnizk)
-(s/def ::zk-parameters (s/multi-spec zk-parameters :protocol))
-
-(s/def ::zk-proof-schnorrsnizk
-  (s/merge ::versioned (s/keys :req-un [::A ::C ::s1 ::s2])))
-(defmulti zk-proof :protocol)
-(defmethod zk-proof :schnorrsnizk [_] ::zk-proof-schnorrsnizk)
-(s/def ::zk-proof (s/multi-spec zk-proof :protocol))
-
-(s/def ::register-request-body
-  (s/merge ::zk-proof ::zk-parameters (s/keys :req-un [::b])))
-
-(s/def ::ethereum-zero-hash
+(s/def ::ethereum-nil-transaction-id
   #(= % "0x0000000000000000000000000000000000000000000000000000000000000000"))
-
 (s/def ::ethereum-transaction-id
   (s/and string?
          not-empty
          #(= (count %) 66)
          #(= (subs % 0 2) "0x")
-         #(not (s/valid? ::ethereum-zero-hash %))))
+         #(not (s/valid? ::ethereum-nil-transaction-id %))))
 
 (s/def ::sqs-submission-success-response
   (s/keys :req-un [::MessageId ::MD5OfMessageBody]))
-
-(s/def ::transaction-id
-  (s/and string?
-         not-empty
-         #(= (count %) 66)
-         #(= (subs % 0 2) "0x")))
 
 (s/def ::initialize-request-body
   (s/+ ::transaction-id))
 
 (s/def ::initialize-response-body
-  (s/map-of ::transaction-id (s/merge ::zk-parameters (s/keys :req-un [::b]))))
+  (s/map-of ::transaction-id (s/merge ::credential-specification (s/keys :req-un [::nonce]))))
 
 (s/def ::verify-request-body
-  (s/map-of ::transaction-id ::zk-proof))
+  (s/map-of ::transaction-id ::proof))
 
 (s/def ::secret
   (s/and string? not-empty))
@@ -83,7 +74,7 @@
             flatten
             (filter some?))))))
 
-(s/def ::dispatch (s/or :protocol ::versioned))
+(s/def ::dispatch (s/or :protocol ::credential))
 (defn select-keys-spec [m spec]
   (let [multi-spec? (= (keyword (first (s/form spec))) ::s/multi-spec)
         tagged (s/conform ::dispatch m)]
