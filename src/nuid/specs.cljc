@@ -5,19 +5,23 @@
 (s/def ::protocol #{{:id :knizk}})
 (s/def ::curve #{{:id :secp256k1}})
 (s/def ::normalization-form #{"NFC" "NFKC" "NFD" "NFKD"})
+
 (defmulti keyfn :id)
 (defmethod keyfn :sha256 [_] (s/keys :req-un [::salt ::normalization-form]))
 (defmethod keyfn :sha512 [_] (s/keys :req-un [::salt ::normalization-form]))
 (defmethod keyfn :scrypt [_] (s/keys :req-un [::salt ::n ::r ::p ::normalization-form ::key-length]))
 (s/def ::keyfn (s/multi-spec keyfn :id))
+
 (defmulti hashfn :id)
 (defmethod hashfn :sha256 [_] (s/keys :req-un [::normalization-form]))
 (defmethod hashfn :sha512 [_] (s/keys :req-un [::normalization-form]))
 (s/def ::hashfn (s/multi-spec hashfn :id))
+
 (s/def ::credential-specification (s/keys :req-un [::protocol ::curve ::keyfn ::hashfn]))
 (s/def ::credential (s/merge ::credential-specification (s/keys :req-un [::pub])))
+
 (defmulti proof* :protocol)
-(defmethod proof* {:id :knizk} [_] (s/keys :req-un [::nonce ::c ::s]))
+(defmethod proof* {:id :knizk} [_] (s/keys :req-un [::c ::s ::nonce]))
 (s/def ::proof* (s/multi-spec proof* :protocol))
 (s/def ::proof (s/merge ::credential ::proof*))
 
@@ -30,23 +34,17 @@
          #(= (subs % 0 2) "0x")
          #(not (s/valid? ::ethereum-nil-transaction-id %))))
 
+(s/def ::credential-id (s/or :store.ethereum/credential-id ::ethereum-transaction-id))
+
+(s/def ::initialize-request (s/+ ::credential-id))
+(s/def ::initialize-response (s/map-of ::credential-id (s/merge ::credential (s/keys :req-un [::nonce]))))
+(s/def ::verify-request (s/map-of ::credential-id ::proof))
+
+(s/def ::secret (s/and string? not-empty))
+(s/def ::client-credentials (s/map-of ::credential-id (s/keys :req-un [::secret])))
+
 (s/def ::sqs-submission-success-response
   (s/keys :req-un [::MessageId ::MD5OfMessageBody]))
-
-(s/def ::initialize-request-body
-  (s/+ ::transaction-id))
-
-(s/def ::initialize-response-body
-  (s/map-of ::transaction-id (s/merge ::credential-specification (s/keys :req-un [::nonce]))))
-
-(s/def ::verify-request-body
-  (s/map-of ::transaction-id ::proof))
-
-(s/def ::secret
-  (s/and string? not-empty))
-
-(s/def ::client-credentials
-  (s/map-of ::transaction-id (s/keys :req-un [::secret])))
 
 (def unqualify (comp keyword name))
 
