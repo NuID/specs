@@ -36,9 +36,14 @@
 
 (s/def ::credential-id (s/or :store.ethereum/credential-id ::ethereum-transaction-id))
 
+(s/def ::has-credential-data (s/and map? #(some (fn [k] (= (namespace k) "credential.data")) (keys %))))
+(s/def ::has-credential-id (s/and map? #(some (fn [k] (= (name k) "credential-id")) (keys %))))
 (s/def ::initialize-request (s/+ ::credential-id))
-(s/def ::initialize-response (s/map-of ::credential-id (s/merge ::credential (s/keys :req-un [::nonce]))))
-(s/def ::verify-request (s/map-of ::credential-id ::proof))
+(s/def ::initialized-credential (s/merge ::has-credential-id ::has-credential-data (s/keys :req-un [::nonce])))
+(s/def ::initialize-response (s/coll-of ::initialized-credential))
+
+(s/def ::verifiable (s/merge ::has-credential-id ::proof))
+(s/def ::verify-request (s/coll-of ::verifiable))
 
 (s/def ::secret (s/and string? not-empty))
 (s/def ::client-credentials (s/map-of ::credential-id (s/keys :req-un [::secret])))
