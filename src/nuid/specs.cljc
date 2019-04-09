@@ -45,9 +45,6 @@
 (s/def ::verifiable (s/merge ::has-credential-id ::proof))
 (s/def ::verify-request (s/coll-of ::verifiable))
 
-(s/def ::secret (s/and string? not-empty))
-(s/def ::client-credentials (s/map-of ::credential-id (s/keys :req-un [::secret])))
-
 (s/def ::sqs-submission-success-response
   (s/keys :req-un [::MessageId ::MD5OfMessageBody]))
 
