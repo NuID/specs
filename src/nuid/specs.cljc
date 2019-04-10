@@ -6,7 +6,7 @@
 (defn parse-keys-form
   "Extracts the keys (`:req`, `:opt`, `:req-un`, and `:opt-un`) from
   an `s/keys` form and `concat`s them into a flat list.
-  `s/select` will obviate this function."
+  `s/select` obviates this function."
   [form]
   (let [{:keys [req req-un opt opt-un]} (apply hash-map (rest form))]
     (concat req (map unqualify req-un) opt (map unqualify opt-un))))
@@ -16,7 +16,7 @@
   separated by hyphens. The new keyword will have the same namespaces as
   the first keyword in the list. This is used to exploit naming conventions
   while descending into a `s/multi-spec` to extract relevant keys.
-  `s/select` will obviate this function."
+  `s/select` obviates this function."
   [& kws]
   (when (first kws)
     (keyword
@@ -28,7 +28,7 @@
 (defn get-keys
   "Tries to descend into nested s/merge'd specs to extract keys.
   `dispatch` may be used to exploit a naming convention within s/multi-specs.
-  `s/select`'s will obviate this function."
+  `s/select`'s obviates this function."
   ([spec] (get-keys nil spec))
   ([dispatch spec]
    (let [form (if (keyword? spec) (s/form spec) spec)]
