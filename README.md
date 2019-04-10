@@ -43,11 +43,9 @@ This library is still in the alpha phase of describing the shape of the data tha
 
 It is important to remember that this library only ever describes ("specifies") pure data. E.g. `nuid.specs/hashfn` describes a data format that can be used by `nuid.cryptography/generate-hashfn` to produce an actual function for hashing values. It is helpful to mentally append `-spec` to the `s/def`'s described in `nuid.specs`, which in practice would be annoyingly redundant.
 
-One idea to reduce naming contention and improve clarity due to the locality tradeoff described above is to divide this library into namespaces e.g. `nuid.specs.credential`, `nuid.specs.aws`, etc..
-
 ## Contributing
 
-Install [`git-hooks`](https://github.com/icefox/git-hooks) and fire away. Make sure not to get bitten by [`externs`](https://clojurescript.org/guides/externs) if modifying `npm` dependencies.
+Install [`git-hooks`](https://github.com/icefox/git-hooks) and fire away.
 
 ### formatting:
 
