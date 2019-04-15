@@ -18,7 +18,7 @@ These specs will update as needed to reflect API changes. Many of the specs have
 
 ### tools.deps:
 
-`{nuid/specs {:git/url "https://github.com/nuid/specs" :sha "..."}`
+`{nuid/specs {:git/url "https://github.com/nuid/specs" :sha "..."}}`
 
 ### usage:
 
