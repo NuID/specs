@@ -43,6 +43,10 @@ This library is still in the alpha phase of describing the shape of the data tha
 
 It is important to remember that this library only ever describes ("specifies") pure data. E.g. `nuid.specs/hashfn` describes a data format that can be used by `nuid.cryptography/generate-hashfn` to produce an actual function for hashing values. It is helpful to mentally append `-spec` to the `s/def`'s described in `nuid.specs`, which in practice would be annoyingly redundant.
 
+## Licensing
+
+Apache v2.0 or MIT
+
 ## Contributing
 
 Install [`git-hooks`](https://github.com/icefox/git-hooks) and fire away.
