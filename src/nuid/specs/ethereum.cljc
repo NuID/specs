@@ -1,9 +1,7 @@
 (ns nuid.specs.ethereum
   (:require [clojure.spec.alpha :as s]))
 
-(s/def :nuid.ethereum/config (s/keys :req [:ethereum/http-provider
-                                           :ethereum/private-key
-                                           :ethereum/coinbase]))
+(s/def :nuid.ethereum/config (s/keys :req [:ethereum/http-provider :ethereum/private-key]))
 
 (s/def :ethereum/nil-transaction-id
   #(= % "0x0000000000000000000000000000000000000000000000000000000000000000"))
