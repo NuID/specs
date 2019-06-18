@@ -1,5 +1,7 @@
 (ns nuid.specs.credential
-  (:require [clojure.spec.alpha :as s]))
+  (:require
+   [clojure.spec.alpha :as s]
+   [nuid.specs.ethereum]))
 
 (s/def ::protocol #{{:id :knizk}})
 (s/def ::curve #{{:id :secp256k1}})
